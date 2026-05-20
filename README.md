@@ -15,7 +15,7 @@ A cross-platform Claude Code installer that detects your environment, installs d
 
 ```bash
 # 1. 下载脚本
-curl -O https://raw.githubusercontent.com/<your-repo>/main/install-claude-code.sh
+curl -O https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/claude-code-installer/install-claude-code.sh
 
 # 2. 赋予执行权限
 chmod +x install-claude-code.sh
