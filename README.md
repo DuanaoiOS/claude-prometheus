@@ -3,25 +3,29 @@
 > 将 AI 之火带到你的终端。
 > *Bringing the fire of AI to your terminal.*
 
-A cross-platform Claude Code installer that detects your environment, installs dependencies, and configures third-party LLMs (DeepSeek-v4, OpenRouter, Qwen, GLM, and more).
+A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenClaw — with automatic environment detection and third-party LLM configuration (DeepSeek-v4, OpenAI, Anthropic, OpenRouter, Qwen, GLM, and more).
+
+## 工具列表
+
+| 工具 | 目录 | 说明 |
+|------|------|------|
+| **Claude Code** | [`claude-code-installer/`](claude-code-installer/) | Anthropic 官方 AI 编程助手 CLI |
+| **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | 微软开源个人 AI 助手，多渠道支持 |
 
 ## 灵感
 
-普罗米修斯（Prometheus）从奥林匹斯盗取火种赐予人类，开启了人类文明。这个工具如其名——将云端 AI 的强大能力带回本地，让每一个开发者都能自由使用 Claude Code，无论用的是哪家大模型。
+普罗米修斯（Prometheus）从奥林匹斯盗取火种赐予人类，开启了人类文明。这个工具如其名——将云端 AI 的强大能力带回本地，让每一个开发者都能自由使用 AI agent，无论用的是哪家大模型。
 
 ## 快速开始
 
 ### macOS / Linux
 
 ```bash
-# 1. 下载脚本
-curl -O https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/claude-code-installer/install-claude-code.sh
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/claude-code-installer/install-claude-code.sh | bash
 
-# 2. 赋予执行权限
-chmod +x install-claude-code.sh
-
-# 3. 运行
-./install-claude-code.sh
+# OpenClaw 🦞
+curl -fsSL https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/openclaw-installer/install-openclaw.sh | bash
 ```
 
 ### Windows
@@ -29,18 +33,16 @@ chmod +x install-claude-code.sh
 **PowerShell（推荐）:**
 
 ```powershell
-# 以管理员身份运行 PowerShell，执行:
-.\install-claude-code.ps1
-```
+# Claude Code
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/claude-code-installer/install-claude-code.ps1" -OutFile "install-claude-code.ps1"; .\install-claude-code.ps1
 
-**Git Bash:**
-
-```bash
-chmod +x install-claude-code.sh
-./install-claude-code.sh
+# OpenClaw 🦞
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DuanaoiOS/claude-prometheus/main/openclaw-installer/install-openclaw.ps1" -OutFile "install-openclaw.ps1"; .\install-openclaw.ps1
 ```
 
 ## 命令行参数
+
+### Claude Code
 
 支持非交互式安装，适合 CI/CD 或自动化场景:
 
@@ -65,6 +67,34 @@ chmod +x install-claude-code.sh
 | `--model` / `-Model` | 模型名称 |
 | `--config-only` / `-ConfigOnly` | 仅配置模型，跳过安装 |
 
+### OpenClaw 🦞
+
+```bash
+# Bash
+./install-openclaw.sh \
+  --deepseek-key "sk-xxx" \
+  --openai-key "sk-xxx" \
+  --skip-onboarding
+
+# PowerShell
+.\install-openclaw.ps1 `
+  -DeepSeekKey "sk-xxx" `
+  -OpenAIKey "sk-xxx" `
+  -SkipOnboarding
+```
+
+| 参数 | 说明 |
+|------|------|
+| `--deepseek-key` / `-DeepSeekKey` | DeepSeek API Key |
+| `--openai-key` / `-OpenAIKey` | OpenAI API Key |
+| `--anthropic-key` / `-AnthropicKey` | Anthropic API Key |
+| `--openrouter-key` / `-OpenRouterKey` | OpenRouter API Key |
+| `--gemini-key` / `-GeminiKey` | Google Gemini API Key |
+| `--qwen-key` / `-QwenKey` | 阿里百炼 / Qwen API Key |
+| `--glm-key` / `-GlmKey` | 智谱 GLM API Key |
+| `--config-only` / `-ConfigOnly` | 仅配置模型，跳过安装 |
+| `--skip-onboarding` / `-SkipOnboarding` | 跳过交互式 onboarding |
+
 ## 支持的第三方模型
 
 | 提供商 | Base URL | 可用模型 |
@@ -75,16 +105,49 @@ chmod +x install-claude-code.sh
 | **智谱 AI** | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-plus`, `glm-4-flash` |
 | **自定义** | 任意 Anthropic 兼容 API | 自定义 |
 
+### OpenClaw 模型配置
+
+OpenClaw 原生支持多家模型提供商，各使用独立的环境变量，无需配置 Base URL：
+
+| 提供商 | 环境变量 | 模型示例 |
+|--------|---------|----------|
+| **DeepSeek** | `DEEPSEEK_API_KEY` | `deepseek-v4-pro`, `deepseek-v4-flash` |
+| **OpenAI** | `OPENAI_API_KEY` | `gpt-5`, `gpt-4o` |
+| **Anthropic** | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6`, `claude-opus-4-7` |
+| **OpenRouter** | `OPENROUTER_API_KEY` | `deepseek/deepseek-v4-pro` |
+| **Gemini** | `GEMINI_API_KEY` | `gemini-2.5-pro` |
+| **Qwen** | `DASHSCOPE_API_KEY` | `qwen-max`, `qwen-plus` |
+| **GLM** | `ZAI_API_KEY` | `glm-4-plus` |
+
+## OpenClaw 常用命令
+
+```bash
+# 启动网关
+openclaw gateway --port 18789 --verbose
+
+# 与 AI 对话
+openclaw agent --message "你好" --thinking high
+
+# 发送消息到渠道
+openclaw message send --to +1234567890 --message "Hello"
+
+# 交互式配置
+openclaw onboard
+
+# 重新配置模型
+openclaw onboard --auth-choice deepseek-api-key
+```
+
 ## 环境要求
 
-| 依赖 | 用途 | 自动安装 |
-|------|------|----------|
-| **Node.js >= 18** | Claude Code 运行时 | ✅ 脚本自动安装 |
-| **npm** | 包管理器（随 Node.js） | ✅ 随 Node.js 安装 |
-| **git** | 代码仓库上下文分析 | ⚠️ 需手动安装 |
-| **Xcode CLT** (macOS) | 编译原生 npm 模块 | ⚠️ 脚本引导安装 |
-| **C++ 编译工具** (Windows) | 编译原生 npm 模块 | ⚠️ 可选安装 |
-| 网络连接 | 下载依赖 | - |
+| 依赖 | Claude Code | OpenClaw | 自动安装 |
+|------|-------------|----------|----------|
+| **Node.js** | >= 18 | >= 22 (推荐 24) | ✅ 脚本自动安装 |
+| **npm / pnpm / bun** | ✅ | ✅ | ✅ |
+| **git** | ✅ | 可选 | ⚠️ 需手动安装 |
+| **Xcode CLT** (macOS) | 编译模块 | 编译模块 | ⚠️ 脚本引导安装 |
+| **C++ 编译工具** (Windows) | 编译模块 | 编译模块 | ⚠️ 可选安装 |
+| 网络连接 | 下载依赖 | 下载依赖 | - |
 
 ### macOS 依赖说明
 
