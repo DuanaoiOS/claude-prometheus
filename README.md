@@ -3,6 +3,8 @@
 > 将 AI 之火带到你的终端。
 > *Bringing the fire of AI to your terminal.*
 
+[English](README_EN.md) | 中文
+
 A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenClaw — with automatic environment detection and third-party LLM configuration (DeepSeek-v4, OpenAI, Anthropic, OpenRouter, Qwen, GLM, and more).
 
 ## 工具列表
