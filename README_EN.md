@@ -13,9 +13,6 @@ A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenCl
 | **Claude Code** | [`claude-code-installer/`](claude-code-installer/) | Anthropic's official AI coding assistant CLI |
 | **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | Microsoft's open-source personal AI agent with multi-channel support |
 
-## Inspiration
-
-Prometheus stole fire from Olympus and gave it to humanity, sparking civilization. This toolkit is named after him — it brings the fire of cloud AI back to your local machine, letting every developer run AI agents freely, regardless of which LLM provider they use.
 
 ## Quick Start
 

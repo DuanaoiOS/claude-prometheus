@@ -1,4 +1,4 @@
-# 🔥 Prometheus 普罗米修斯
+# 🔥 Prometheus 
 
 > 将 AI 之火带到你的终端。
 > *Bringing the fire of AI to your terminal.*
@@ -14,9 +14,6 @@ A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenCl
 | **Claude Code** | [`claude-code-installer/`](claude-code-installer/) | Anthropic 官方 AI 编程助手 CLI |
 | **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | 微软开源个人 AI 助手，多渠道支持 |
 
-## 灵感
-
-普罗米修斯（Prometheus）从奥林匹斯盗取火种赐予人类，开启了人类文明。这个工具如其名——将云端 AI 的强大能力带回本地，让每一个开发者都能自由使用 AI agent，无论用的是哪家大模型。
 
 ## 快速开始
 
