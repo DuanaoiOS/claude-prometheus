@@ -393,7 +393,7 @@ configure_third_party_model() {
       read -rp "请输入模型名称: " MODEL_NAME
       ;;
     4)
-      BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
+      BASE_URL="https://dashscope.aliyuncs.com/apps/anthropic"
       echo ""
       echo "百炼可用模型:"
       echo "  a) qwen-plus"
@@ -407,16 +407,16 @@ configure_third_party_model() {
       esac
       ;;
     5)
-      BASE_URL="https://open.bigmodel.cn/api/paas/v4"
+      BASE_URL="https://open.bigmodel.cn/api/anthropic"
       echo ""
       echo "智谱可用模型:"
-      echo "  a) glm-4-plus"
-      echo "  b) glm-4-flash"
+      echo "  a) glm-4.5"
+      echo "  b) glm-4.6"
       echo "  c) 自定义模型名称"
       read -rp "请选择 [a/b/c] (默认 a): " model_choice
       case "${model_choice:-a}" in
-        a) MODEL_NAME="glm-4-plus" ;;
-        b) MODEL_NAME="glm-4-flash" ;;
+        a) MODEL_NAME="glm-4.5" ;;
+        b) MODEL_NAME="glm-4.6" ;;
         c) read -rp "请输入模型名称: " MODEL_NAME ;;
       esac
       ;;

@@ -11,7 +11,7 @@ A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenCl
 | Tool | Directory | Description |
 |------|-----------|-------------|
 | **Claude Code** | [`claude-code-installer/`](claude-code-installer/) | Anthropic's official AI coding assistant CLI |
-| **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | Microsoft's open-source personal AI agent with multi-channel support |
+| **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | Personal AI agent with multi-channel messaging support |
 
 
 ## Quick Start
@@ -101,8 +101,8 @@ Supports non-interactive installation for CI/CD or automation:
 |----------|----------|--------|
 | **DeepSeek** | `https://api.deepseek.com/anthropic` | `deepseek-v4-pro`, `deepseek-v4-flash` (1M context) |
 | **OpenRouter** | `https://openrouter.ai/api/v1` | `anthropic/claude-sonnet-4`, `anthropic/claude-opus-4`, `deepseek/deepseek-v4-pro` |
-| **Alibaba Bailian** | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus`, `qwen-max` |
-| **Zhipu AI** | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-plus`, `glm-4-flash` |
+| **Alibaba Bailian** | `https://dashscope.aliyuncs.com/apps/anthropic` | `qwen-plus`, `qwen-max` |
+| **Zhipu AI** | `https://open.bigmodel.cn/api/anthropic` | `glm-4.5`, `glm-4.6` |
 | **Custom** | Any Anthropic-compatible API | Custom |
 
 ### OpenClaw

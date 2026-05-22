@@ -306,7 +306,7 @@ function Set-ModelConfig {
                 $Model = Read-Host "请输入模型名称"
             }
             "4" {
-                $BaseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+                $BaseUrl = "https://dashscope.aliyuncs.com/apps/anthropic"
                 Write-Host ""
                 Write-Host "百炼可用模型:"
                 Write-Host "  a) qwen-plus"
@@ -321,17 +321,17 @@ function Set-ModelConfig {
                 }
             }
             "5" {
-                $BaseUrl = "https://open.bigmodel.cn/api/paas/v4"
+                $BaseUrl = "https://open.bigmodel.cn/api/anthropic"
                 Write-Host ""
                 Write-Host "智谱可用模型:"
-                Write-Host "  a) glm-4-plus"
-                Write-Host "  b) glm-4-flash"
+                Write-Host "  a) glm-4.5"
+                Write-Host "  b) glm-4.6"
                 Write-Host "  c) 自定义模型名称"
                 $modelChoice = Read-Host "请选择 [a/b/c] (默认 a)"
                 if ([string]::IsNullOrWhiteSpace($modelChoice)) { $modelChoice = "a" }
                 switch ($modelChoice) {
-                    "a" { $Model = "glm-4-plus" }
-                    "b" { $Model = "glm-4-flash" }
+                    "a" { $Model = "glm-4.5" }
+                    "b" { $Model = "glm-4.6" }
                     "c" { $Model = Read-Host "请输入模型名称" }
                 }
             }

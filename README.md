@@ -12,7 +12,7 @@ A cross-platform toolkit for installing AI agent CLIs — Claude Code and OpenCl
 | 工具 | 目录 | 说明 |
 |------|------|------|
 | **Claude Code** | [`claude-code-installer/`](claude-code-installer/) | Anthropic 官方 AI 编程助手 CLI |
-| **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | 微软开源个人 AI 助手，多渠道支持 |
+| **OpenClaw** 🦞 | [`openclaw-installer/`](openclaw-installer/) | 个人 AI 助手，支持多渠道消息 |
 
 
 ## 快速开始
@@ -100,8 +100,8 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DuanaoiOS/claude-prome
 |--------|----------|----------|
 | **DeepSeek** | `https://api.deepseek.com/anthropic` | `deepseek-v4-pro`, `deepseek-v4-flash`（1M 上下文） |
 | **OpenRouter** | `https://openrouter.ai/api/v1` | `anthropic/claude-sonnet-4`, `anthropic/claude-opus-4`, `deepseek/deepseek-v4-pro` |
-| **阿里百炼** | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus`, `qwen-max` |
-| **智谱 AI** | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-plus`, `glm-4-flash` |
+| **阿里百炼** | `https://dashscope.aliyuncs.com/apps/anthropic` | `qwen-plus`, `qwen-max` |
+| **智谱 AI** | `https://open.bigmodel.cn/api/anthropic` | `glm-4.5`, `glm-4.6` |
 | **自定义** | 任意 Anthropic 兼容 API | 自定义 |
 
 ### OpenClaw 模型配置

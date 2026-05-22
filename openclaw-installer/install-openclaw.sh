@@ -381,7 +381,7 @@ configure_qwen() {
 configure_glm() {
   echo ""
   echo -e "${YELLOW}--- 智谱 GLM 配置 ---${NC}"
-  echo "可用模型: glm-4-plus, glm-4-flash 等"
+  echo "可用模型: glm-4.5, glm-4.6, glm-4.7 等"
   read -rp "智谱 Z.AI API Key: " GLM_KEY
 }
 
