@@ -221,15 +221,16 @@ install_nodejs() {
     return
   fi
 
-  info "安装 Node.js (LTS)..."
+  info "安装 Node.js LTS (>= v${NODE_VERSION_REQUIRED})..."
 
   case "$OS" in
     macos)
       if check_command brew; then
-        info "通过 Homebrew 安装 Node.js..."
-        brew install node
+        info "通过 Homebrew 安装 Node.js LTS..."
+        brew install node@22
+        brew link --force --overwrite node@22
       else
-        warn "未安装 Homebrew，使用 nvm 安装 Node.js..."
+        warn "未安装 Homebrew，使用 nvm 安装..."
         install_nodejs_via_nvm
       fi
       ;;
@@ -241,7 +242,6 @@ install_nodejs() {
       echo "  1. 下载 Node.js: https://nodejs.org/ (选择 LTS 版本)"
       echo "  2. 安装后重新运行本脚本"
       echo ""
-      # 尝试使用 winget 或 choco
       if check_command winget; then
         info "检测到 winget，尝试自动安装..."
         winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
@@ -255,9 +255,6 @@ install_nodejs() {
       ;;
   esac
 
-  # 重新加载 shell 环境
-  export PATH="$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | sort -V | tail -1)/bin:$PATH" 2>/dev/null || true
-
   if check_command node; then
     ok "Node.js $(node -v) 安装成功"
   fi
@@ -268,7 +265,6 @@ install_nodejs_via_nvm() {
 
   if [[ -s "$nvm_dir/nvm.sh" ]]; then
     info "nvm 已安装，直接安装 Node.js LTS..."
-    # shellcheck source=/dev/null
     source "$nvm_dir/nvm.sh"
     nvm install --lts
     nvm use --lts
@@ -276,13 +272,34 @@ install_nodejs_via_nvm() {
     info "安装 nvm..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
 
-    # shellcheck source=/dev/null
     export NVM_DIR="$HOME/.nvm"
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+
+    # 重试 source nvm.sh（curl pipe 后文件可能未就绪）
+    local retry=0
+    while [[ $retry -lt 5 ]]; do
+      if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+        source "$NVM_DIR/nvm.sh"
+        break
+      fi
+      sleep 1
+      ((retry++))
+    done
+
+    if ! command -v nvm &>/dev/null; then
+      error "nvm 安装后无法加载，请手动安装 Node.js >= v${NODE_VERSION_REQUIRED}"
+      exit 1
+    fi
 
     nvm install --lts
     nvm use --lts
     ok "nvm + Node.js LTS 安装完成"
+  fi
+
+  # 仅在 nvm 路径下更新 PATH
+  local nvm_node_bin
+  nvm_node_bin=$(dirname "$(command -v node)" 2>/dev/null || echo "")
+  if [[ -n "$nvm_node_bin" ]] && [[ "$nvm_node_bin" == "$NVM_DIR"* ]]; then
+    export PATH="$nvm_node_bin:$PATH"
   fi
 }
 
@@ -420,15 +437,15 @@ configure_third_party_model() {
 
 apply_env_config() {
   local shell_rc=""
-  case "${SHELL:-}" in
-    */zsh) shell_rc="$HOME/.zshrc" ;;
-    */bash) shell_rc="$HOME/.bashrc" ;;
-    *) shell_rc="$HOME/.profile" ;;
-  esac
-
-  # macOS 默认 shell 为 zsh
-  if [[ "$OS" == "macos" ]] && [[ ! -f "$shell_rc" ]]; then
+  # macOS 自 Catalina 起默认 shell 为 zsh
+  if [[ "$OS" == "macos" ]]; then
     shell_rc="$HOME/.zshrc"
+  else
+    case "${SHELL:-}" in
+      */zsh)   shell_rc="$HOME/.zshrc" ;;
+      */bash)  shell_rc="$HOME/.bashrc" ;;
+      *)       shell_rc="$HOME/.profile" ;;
+    esac
   fi
 
   info "写入环境变量到 ${shell_rc}..."
@@ -476,33 +493,30 @@ EOF
 
 apply_file_config() {
   local config_file="$1"
-  local tmp_file
-  local config_json
 
-  # 如果已有配置文件，合并
-  if [[ -f "$config_file" ]]; then
-    info "检测到已有配置文件，合并更新..."
-    # 使用 node 合并 JSON（不再依赖 jq）
-    config_json=$(node -e "
-      const fs = require('fs');
-      let config = {};
-      try { config = JSON.parse(fs.readFileSync('$config_file', 'utf8')); } catch(e) {}
-      config.ANTHROPIC_API_KEY = '$API_KEY';
-      config.ANTHROPIC_BASE_URL = '$BASE_URL';
-      config.ANTHROPIC_MODEL = '$MODEL_NAME';
-      console.log(JSON.stringify(config, null, 2));
-    " 2>/dev/null || echo '{}')
-  else
-    config_json=$(node -e "
-      console.log(JSON.stringify({
-        ANTHROPIC_API_KEY: '$API_KEY',
-        ANTHROPIC_BASE_URL: '$BASE_URL',
-        ANTHROPIC_MODEL: '$MODEL_NAME'
-      }, null, 2));
-    ")
-  fi
+  # 通过环境变量传入，避免特殊字符破坏 JS 语法
+  export _PROMETHEUS_API_KEY="$API_KEY"
+  export _PROMETHEUS_BASE_URL="$BASE_URL"
+  export _PROMETHEUS_MODEL="$MODEL_NAME"
+  export _PROMETHEUS_CONFIG_FILE="$config_file"
 
-  echo "$config_json" > "$config_file"
+  node <<'NODESCRIPT'
+    const fs = require('fs');
+    const configFile = process.env._PROMETHEUS_CONFIG_FILE;
+    const apiKey = process.env._PROMETHEUS_API_KEY;
+    const baseUrl = process.env._PROMETHEUS_BASE_URL;
+    const model = process.env._PROMETHEUS_MODEL;
+
+    let config = {};
+    if (fs.existsSync(configFile)) {
+      try { config = JSON.parse(fs.readFileSync(configFile, 'utf8')); } catch(e) {}
+    }
+    config.ANTHROPIC_API_KEY = apiKey;
+    config.ANTHROPIC_BASE_URL = baseUrl;
+    config.ANTHROPIC_MODEL = model;
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+NODESCRIPT
+
   ok "配置文件已写入: ${config_file}"
 }
 
