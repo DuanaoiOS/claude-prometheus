@@ -219,8 +219,6 @@ install_nodejs() {
       ;;
   esac
 
-  export PATH="$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | sort -V | tail -1)/bin:$PATH" 2>/dev/null || true
-
   if check_command node; then
     ok "Node.js $(node -v) 安装成功"
   fi
@@ -237,11 +235,35 @@ install_nodejs_via_nvm() {
   else
     info "安装 nvm..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+
     export NVM_DIR="$HOME/.nvm"
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+
+    # 重试 source nvm.sh（curl pipe 后文件可能未就绪）
+    local retry=0
+    while [[ $retry -lt 5 ]]; do
+      if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+        source "$NVM_DIR/nvm.sh"
+        break
+      fi
+      sleep 1
+      ((retry++))
+    done
+
+    if ! type -t nvm &>/dev/null && ! command -v node &>/dev/null; then
+      error "nvm 安装后无法加载，请手动安装 Node.js >= v${NODE_VERSION_REQUIRED}"
+      exit 1
+    fi
+
     nvm install 24
     nvm use 24
     ok "nvm + Node.js 24 安装完成"
+  fi
+
+  # 仅在 nvm 路径下更新 PATH
+  local nvm_node_bin
+  nvm_node_bin=$(dirname "$(command -v node)" 2>/dev/null || echo "")
+  if [[ -n "$nvm_node_bin" ]] && [[ "$nvm_node_bin" == "$NVM_DIR"* ]]; then
+    export PATH="$nvm_node_bin:$PATH"
   fi
 }
 
@@ -387,14 +409,15 @@ configure_glm() {
 
 write_env_config() {
   local shell_rc=""
-  case "${SHELL:-}" in
-    */zsh) shell_rc="$HOME/.zshrc" ;;
-    */bash) shell_rc="$HOME/.bashrc" ;;
-    *) shell_rc="$HOME/.profile" ;;
-  esac
-
-  if [[ "$OS" == "macos" ]] && [[ ! -f "$shell_rc" ]]; then
+  # macOS 自 Catalina 起默认 shell 为 zsh
+  if [[ "$OS" == "macos" ]]; then
     shell_rc="$HOME/.zshrc"
+  else
+    case "${SHELL:-}" in
+      */zsh)   shell_rc="$HOME/.zshrc" ;;
+      */bash)  shell_rc="$HOME/.bashrc" ;;
+      *)       shell_rc="$HOME/.profile" ;;
+    esac
   fi
 
   info "写入环境变量到 ${shell_rc}..."
@@ -460,12 +483,21 @@ write_file_config() {
 
   mkdir -p "$config_dir"
 
-  local config_json
-  config_json=$(node -e "
+  export _PROMETHEUS_CONFIG_FILE="$config_file"
+  export _PROMETHEUS_DEEPSEEK_KEY="$DEEPSEEK_KEY"
+  export _PROMETHEUS_OPENAI_KEY="$OPENAI_KEY"
+  export _PROMETHEUS_ANTHROPIC_KEY="$ANTHROPIC_KEY"
+  export _PROMETHEUS_OPENROUTER_KEY="$OPENROUTER_KEY"
+  export _PROMETHEUS_GEMINI_KEY="$GEMINI_KEY"
+  export _PROMETHEUS_QWEN_KEY="$QWEN_KEY"
+  export _PROMETHEUS_GLM_KEY="$GLM_KEY"
+
+  if node <<'NODESCRIPT'; then
     const fs = require('fs');
+    const configFile = process.env._PROMETHEUS_CONFIG_FILE;
     let config = {};
-    if (fs.existsSync('$config_file')) {
-      try { config = JSON.parse(fs.readFileSync('$config_file', 'utf8')); } catch(e) {}
+    if (fs.existsSync(configFile)) {
+      try { config = JSON.parse(fs.readFileSync(configFile, 'utf8')); } catch(e) {}
     }
 
     config.models = config.models || {};
@@ -474,22 +506,28 @@ write_file_config() {
     config.agents.defaults = config.agents.defaults || {};
     config.agents.defaults.model = config.agents.defaults.model || {};
 
-    if ('$DEEPSEEK_KEY') {
-      config.models.providers.deepseek = { apiKey: '$DEEPSEEK_KEY' };
+    const keys = {
+      deepseek:   process.env._PROMETHEUS_DEEPSEEK_KEY,
+      openai:     process.env._PROMETHEUS_OPENAI_KEY,
+      anthropic:  process.env._PROMETHEUS_ANTHROPIC_KEY,
+      openrouter: process.env._PROMETHEUS_OPENROUTER_KEY,
+      gemini:     process.env._PROMETHEUS_GEMINI_KEY,
+      qwen:       process.env._PROMETHEUS_QWEN_KEY,
+      zai:        process.env._PROMETHEUS_GLM_KEY,
+    };
+
+    for (const [provider, key] of Object.entries(keys)) {
+      if (key) {
+        config.models.providers[provider] = { apiKey: key };
+      }
+    }
+
+    if (keys.deepseek) {
       config.agents.defaults.model.primary = config.agents.defaults.model.primary || 'deepseek/deepseek-v4-pro';
     }
-    if ('$OPENAI_KEY')     config.models.providers.openai     = { apiKey: '$OPENAI_KEY' };
-    if ('$ANTHROPIC_KEY')  config.models.providers.anthropic  = { apiKey: '$ANTHROPIC_KEY' };
-    if ('$OPENROUTER_KEY') config.models.providers.openrouter = { apiKey: '$OPENROUTER_KEY' };
-    if ('$GEMINI_KEY')     config.models.providers.gemini     = { apiKey: '$GEMINI_KEY' };
-    if ('$QWEN_KEY')       config.models.providers.qwen       = { apiKey: '$QWEN_KEY' };
-    if ('$GLM_KEY')        config.models.providers.zai         = { apiKey: '$GLM_KEY' };
 
-    console.log(JSON.stringify(config, null, 2));
-  " 2>/dev/null)
-
-  if [[ -n "$config_json" ]]; then
-    echo "$config_json" > "$config_file"
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+NODESCRIPT
     ok "配置文件已写入: ${config_file}"
   else
     warn "配置文件生成失败，请使用环境变量方式配置"

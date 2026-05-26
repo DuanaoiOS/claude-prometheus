@@ -285,7 +285,7 @@ install_nodejs_via_nvm() {
       ((retry++))
     done
 
-    if ! command -v nvm &>/dev/null; then
+    if ! type -t nvm &>/dev/null && ! command -v node &>/dev/null; then
       error "nvm 安装后无法加载，请手动安装 Node.js >= v${NODE_VERSION_REQUIRED}"
       exit 1
     fi

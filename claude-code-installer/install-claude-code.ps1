@@ -372,18 +372,23 @@ function Set-FileConfig {
 
     Write-Info "配置 Claude Code 配置文件..."
 
-    $config = @{}
+    $config = $null
     if (Test-Path $configFile) {
         try {
-            $config = Get-Content $configFile -Raw | ConvertFrom-Json | Out-Hashtable
+            $config = Get-Content $configFile -Raw | ConvertFrom-Json
         } catch {
             Write-Warn "无法读取现有配置文件，将创建新文件"
+            $config = $null
         }
     }
 
-    $config["ANTHROPIC_API_KEY"] = $ApiKey
-    $config["ANTHROPIC_BASE_URL"] = $BaseUrl
-    $config["ANTHROPIC_MODEL"] = $Model
+    if (-not $config) {
+        $config = [PSCustomObject]@{}
+    }
+
+    $config | Add-Member -MemberType NoteProperty -Name "ANTHROPIC_API_KEY" -Value $ApiKey -Force
+    $config | Add-Member -MemberType NoteProperty -Name "ANTHROPIC_BASE_URL" -Value $BaseUrl -Force
+    $config | Add-Member -MemberType NoteProperty -Name "ANTHROPIC_MODEL" -Value $Model -Force
 
     $config | ConvertTo-Json -Depth 10 | Set-Content $configFile -Encoding UTF8
     Write-Ok "配置文件已写入: $configFile"
