@@ -162,17 +162,6 @@ openclaw onboard --auth-choice deepseek-api-key
 - **git**: 从 https://git-scm.com/download/win 下载安装
 - **C++ 编译工具**: 可选安装 `windows-build-tools` 或 Visual Studio Build Tools
 
-## 脚本工作流程
-
-1. 检测操作系统（macOS / Linux / Windows）
-2. 全面检测开发环境依赖（git、编译工具、磁盘空间等）
-3. 检查网络连接
-4. 检查 Node.js 版本，不满足则自动安装
-5. 通过 npm 全局安装 AI agent CLI (Claude Code / OpenClaw)
-6. 交互式配置第三方模型（或通过命令行参数）
-7. (OpenClaw) 可选运行 onboarding 守护进程配置
-8. 验证安装结果
-
 ## 配置文件位置
 
 | 系统 | 环境变量文件 | Claude Code 配置 | OpenClaw 配置 |
