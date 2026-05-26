@@ -168,28 +168,32 @@ openclaw onboard --auth-choice deepseek-api-key
 2. 全面检测开发环境依赖（git、编译工具、磁盘空间等）
 3. 检查网络连接
 4. 检查 Node.js 版本，不满足则自动安装
-5. 通过 npm 全局安装 Claude Code
+5. 通过 npm 全局安装 AI agent CLI (Claude Code / OpenClaw)
 6. 交互式配置第三方模型（或通过命令行参数）
-7. 验证安装结果
+7. (OpenClaw) 可选运行 onboarding 守护进程配置
+8. 验证安装结果
 
 ## 配置文件位置
 
-| 系统 | 环境变量文件 | Claude Code 配置 |
-|------|-------------|-----------------|
-| macOS / Linux | `~/.zshrc` 或 `~/.bashrc` | `~/.claude.json` |
-| Windows | 用户环境变量 | `%USERPROFILE%\.claude.json` |
+| 系统 | 环境变量文件 | Claude Code 配置 | OpenClaw 配置 |
+|------|-------------|-----------------|---------------|
+| macOS / Linux | `~/.zshrc` 或 `~/.bashrc` | `~/.claude.json` | `~/.openclaw/openclaw.json` |
+| Windows | 用户环境变量 | `%USERPROFILE%\.claude.json` | `%USERPROFILE%\.openclaw\openclaw.json` |
 
 ## 验证安装
 
 ```bash
-# 检查版本
+# Claude Code
 claude --version
-
-# 启动
 claude
 
 # 在 Claude Code 内切换模型
 /model
+```
+
+```bash
+# OpenClaw
+openclaw gateway --port 18789 --verbose
 ```
 
 ## 手动配置环境变量
@@ -237,6 +241,14 @@ A: 设置执行策略:
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+**Q: `openclaw` 命令找不到？**
+
+A: 同 Claude Code 问题，添加 npm 全局 bin 到 PATH。或者使用 pnpm / bun 安装，它们在部分系统上 PATH 处理更可靠。
+
+**Q: OpenClaw 安装时 `sharp` 报错？**
+
+A: 安装脚本已自动设置 `SHARP_IGNORE_GLOBAL_LIBVIPS=1` 来绕过全局 libvips 冲突。如果仍有问题，尝试用 bun 或 pnpm 安装。
 
 ## License
 

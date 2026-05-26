@@ -171,7 +171,8 @@ The script checks and provides guidance for:
 4. Check Node.js version, auto-install if needed
 5. Install the AI agent CLI via npm
 6. Configure third-party LLM providers (interactive or via CLI arguments)
-7. Verify installation
+7. (OpenClaw) Optionally run onboarding for daemon setup
+8. Verify installation
 
 ## Config File Locations
 
